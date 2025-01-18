@@ -10,6 +10,7 @@ from agents.agent_state import AgentState
 from agents.document_processor import DocumentProcessor
 from agents.earnings_call_agent import EarningsCallAgent
 from agents.insurance_analysis_agent import InsuranceAnalysisAgent
+from agents.risk_assessment_agent import RiskAssessmenttAgent
 from agents.simple_store import SimpleStore
 from agents.vector_store import VectorStore
 
@@ -19,15 +20,19 @@ logger = logging.getLogger(__name__)
 
 def create_agent_graph(vector_store: VectorStore, simple_store: SimpleStore) -> Graph:
     analysis_agent = InsuranceAnalysisAgent(vector_store)
+    risk_assessment_agent = RiskAssessmenttAgent()
     earnings_call_agent = EarningsCallAgent(simple_store)
 
     graph = StateGraph(AgentState)
 
     graph.add_node("insurance_agent", analysis_agent.run)
+    graph.add_node("risk_assessment_agent", risk_assessment_agent.run)
     graph.add_node("earnings_call_agent", earnings_call_agent.run)
 
     graph.add_edge(START, "insurance_agent")
+    graph.add_edge(START, "risk_assessment_agent")
     graph.add_edge("insurance_agent", "earnings_call_agent")
+    graph.add_edge("risk_assessment_agent", "earnings_call_agent")
     graph.add_edge("earnings_call_agent", END)
 
     return graph.compile()
@@ -73,7 +78,7 @@ def main():
 
     # Initialize the state
     initial_state = AgentState(
-        query=args.query, market_analysis=None, earnings_call_report=None, history=[]
+        query=args.query, market_analysis="", earnings_call_report="", history=[]
     )
 
     # Run the graph

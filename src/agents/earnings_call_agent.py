@@ -51,9 +51,12 @@ class EarningsCallAgent:
     def run(self, state: AgentState) -> AgentState:
         logger.info(f"Running earnings call agent with input state: {state}")
         output = self.agent_executor.invoke(
-            {"market_analysis": state["market_analysis"]}
+            {
+                "market_analysis": state["market_analysis"],
+                "risk_assessment": state["risk_assessment"],
+            }
         )
         logger.debug(f"Got output: {output}")
-        state["history"].append("insurance_agent")
+        state["history"].append("earnings_call_agent")
         state["earnings_call_report"] = output["output"]
         return state
