@@ -35,8 +35,11 @@ class VectorStore:
     def add_documents(self, documents: List[Document]):
         logger.info(f"Adding {len(documents)} documents to vector store")
         self.vector_store.add_documents(
-            documents, ids=[doc.metadata["id"] for doc in documents]
+            documents, ids=[doc.metadata["source"] for doc in documents]
         )
+
+    def has_record(self, id: str) -> bool:
+        return len(self.vector_store.get_by_ids([id])) > 0
 
     def similarity_search(self, query: str, k: int = 4) -> List[Document]:
         """

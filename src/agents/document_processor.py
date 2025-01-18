@@ -22,9 +22,6 @@ class DocumentProcessor:
         loader = UnstructuredHTMLLoader(file_path)
         documents = loader.load()
         logger.debug(f"Extracted {len(documents)} document(s) from file {file_path}")
-        for idx, doc in enumerate(documents):
-            doc.metadata["file_path"] = file_path
-            doc.metadata["id"] = idx
         return documents
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
@@ -37,6 +34,9 @@ class DocumentProcessor:
         return split_documents
 
     def process(self, file_path: str):
+        if self.vector_store.has_record(file_path):
+            logger.debug(f"Record for document at {file_path} already found. Skipping.")
+            return
         documents = self.load_document(file_path)
         split_documents = self.split_documents(documents)
         self.vector_store.add_documents(split_documents)
