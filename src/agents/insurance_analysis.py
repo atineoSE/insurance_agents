@@ -1,13 +1,15 @@
-from typing import Dict, Any, List
-from langchain_anthropic import ChatAnthropic
-from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.tools import Tool
-from langchain.chains import RetrievalQAWithSourcesChain
 import logging
+from typing import Any, Dict, List
+
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.tools import Tool
+from langchain_openai import ChatOpenAI
 
 from .vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
+
 
 class InsuranceAnalysisAgent:
     def __init__(self, vector_store: VectorStore):
@@ -18,7 +20,7 @@ class InsuranceAnalysisAgent:
             vector_store: Initialized VectorStore instance
         """
         self.vector_store = vector_store
-        self.llm = ChatAnthropic()
+        self.llm = ChatOpenAI()
 
         # Initialize retrieval chain
         self.retrieval_chain = self._create_retrieval_chain()
@@ -50,7 +52,7 @@ class InsuranceAnalysisAgent:
             Tool(
                 name="search_documents",
                 func=self.vector_store.similarity_search,
-                description="Search through insurance documents"
+                description="Search through insurance documents",
             ),
             # TODO: Add more tools for analysis
         ]
