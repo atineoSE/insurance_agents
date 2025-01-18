@@ -1,5 +1,4 @@
 import logging
-from typing import Any, Dict, List
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.tools import Tool
@@ -39,7 +38,7 @@ class InsuranceAnalysisAgent:
             return_intermediate_steps=True,
         )
 
-    def _create_tools(self) -> List[Tool]:
+    def _create_tools(self) -> list[Tool]:
         tools = [
             Tool(
                 name="search_documents",

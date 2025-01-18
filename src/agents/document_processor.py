@@ -1,5 +1,4 @@
 import logging
-from typing import Any, Dict, List
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import UnstructuredHTMLLoader
@@ -17,14 +16,14 @@ class DocumentProcessor:
             chunk_size=1000, chunk_overlap=200
         )
 
-    def load_document(self, file_path: str) -> List[Document]:
+    def load_document(self, file_path: str) -> list[Document]:
         logger.info(f"Loading document at {file_path}")
         loader = UnstructuredHTMLLoader(file_path)
         documents = loader.load()
         logger.debug(f"Extracted {len(documents)} document(s) from file {file_path}")
         return documents
 
-    def split_documents(self, documents: List[Document]) -> List[Document]:
+    def split_documents(self, documents: list[Document]) -> list[Document]:
         logger.info(f"Processing {len(documents)} document(s)")
         split_documents = self.text_splitter.split_documents(documents)
         logger.debug(f"Split input documents into {len(split_documents)} document(s).")
