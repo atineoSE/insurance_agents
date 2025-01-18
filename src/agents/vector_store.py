@@ -1,20 +1,25 @@
-import os
-from typing import List, Dict, Any
-from langchain_core.documents import Document
-from langchain.vectorstores.pgvector import PGVector
-from langchain_anthropic import AnthropicEmbeddings
 import logging
+import os
+from typing import Any, Dict, List
+
+from dotenv import load_dotenv
+from langchain_community.vectorstores import PGVector
+from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+
 class VectorStore:
     def __init__(self):
-        """Initialize the vector store with Anthropic embeddings and PGVector"""
+        """Initialize the vector store with OpenAI embeddings and PGVector"""
         self.connection_string = os.getenv("NEON_CONNECTION_STRING")
         if not self.connection_string:
             raise ValueError("NEON_CONNECTION_STRING environment variable is required")
 
-        self.embeddings = AnthropicEmbeddings()
+        self.embeddings = OpenAIEmbeddings()
         self.collection_name = "insurance_docs"
 
     def init_store(self) -> None:
