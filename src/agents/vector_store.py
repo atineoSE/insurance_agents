@@ -32,16 +32,11 @@ class VectorStore:
             use_jsonb=True,
         )
 
-    def add_documents(self, documents: List[Document]) -> None:
-        """
-        TODO: Add documents to vector store
-
-        Args:
-            documents: List of documents to add
-        """
+    def add_documents(self, documents: List[Document]):
         logger.info(f"Adding {len(documents)} documents to vector store")
-        # TODO: Implement document addition
-        pass
+        self.vector_store.add_documents(
+            documents, ids=[doc.metadata["id"] for doc in documents]
+        )
 
     def similarity_search(self, query: str, k: int = 4) -> List[Document]:
         """
