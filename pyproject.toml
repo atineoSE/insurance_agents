@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"
 langchain = "^0.3.14"
 langgraph = "^0.2.61"
 langchain-core = "^0.3.29"
@@ -20,6 +20,8 @@ python-dotenv = "^1.0.1"
 psycopg = { version = "^3.2.4", extras = ["binary", "pool"] }
 openai = "^1.59.5"
 langchain-openai = "^0.2.14"
+langchain-unstructured = "^0.1.6"
+unstructured = "^0.16.13"
 anthropic = "^0.42.0"
 pandas = "^2.2.3"
 openpyxl = "^3.1.5"
