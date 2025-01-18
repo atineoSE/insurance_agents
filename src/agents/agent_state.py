@@ -3,6 +3,6 @@ from typing_extensions import TypedDict
 
 
 class AgentState(TypedDict):
-    messages: list[BaseMessage]
     query: str
+    output: str | None
     history: list[str]

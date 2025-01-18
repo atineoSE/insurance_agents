@@ -2,7 +2,6 @@ import logging
 from typing import Any, Dict, List
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.chains.qa_with_sources.retrieval import RetrievalQAWithSourcesChain
 from langchain.tools import Tool
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
@@ -22,9 +21,6 @@ class InsuranceAnalysisAgent:
         self.vector_store = vector_store
         self.llm = ChatOpenAI(temperature=0)
 
-        # Initialize retrieval chain
-        # self.retrieval_chain = RetrievalQAWithSourcesChain.from_llm(llm=self.llm)
-
         # Initialize tools
         self.tools = self._create_tools()
 
@@ -32,7 +28,6 @@ class InsuranceAnalysisAgent:
         prompt_template = ChatPromptTemplate.from_messages(
             [
                 ("system", insurance_agent_system_prompt),
-                # MessagesPlaceholder("chat_history", optional=True),
                 ("human", insurance_agent_user_prompt),
                 MessagesPlaceholder("agent_scratchpad"),
             ]
@@ -51,33 +46,18 @@ class InsuranceAnalysisAgent:
                 func=self.vector_store.similarity_search,
                 description="Search through insurance documents",
             ),
-            # TODO: Add more tools for analysis
         ]
         return tools
-
-    def analyze_trends(self, query: str) -> str:
-        """
-        TODO: Analyze insurance trends
-
-        Args:
-            query: Analysis query
-
-        Returns:
-            Analysis results
-        """
-        logger.info(f"Analyzing trends for query: {query}")
-        # TODO: Implement trend analysis
-        return ""
 
     def run(self, state: AgentState) -> AgentState:
         logger.info(f"Running insurance agent with input state: {state}")
         output = self.agent_executor.invoke(
             {
-                # "chat_history": state["messages"],
                 "documents": "",
                 "query": state["query"],
             }
         )
-        logger.info(f"Got output: {output}")
+        logger.debug(f"Got output: {output}")
         state["history"].append("insurance_agent")
+        state["output"] = output["output"]
         return state

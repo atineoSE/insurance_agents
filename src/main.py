@@ -78,13 +78,16 @@ def main():
     graph = create_agent_graph(vector_store)
 
     # Initialize the state
-    initial_state = AgentState(messages=[], query=args.query, history=[])
+    initial_state = AgentState(query=args.query, output=None, history=[])
 
     # Run the graph
-    for idx, output in enumerate(graph.stream(initial_state)):
-        logger.info(f"STEP {idx}: {output}")
+    for idx, state in enumerate(graph.stream(initial_state)):
+        logger.info(f"STEP {idx}: {state}")
 
     logger.info("Analysis complete!")
+
+    print(f"\n\nQuery: {args.query}")
+    print(f"\n\nAnswer: {state["insurance_agent"]["output"]}")
 
 
 if __name__ == "__main__":

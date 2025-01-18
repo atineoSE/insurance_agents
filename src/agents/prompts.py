@@ -2,14 +2,6 @@ insurance_agent_system_prompt = """You are an insurance agent, responsible for a
 Ground your answers on the provided documents. Be concise and informative, without being overly verbose.
 """
 
-insurance_agent_user_prompt = """Considering the following documents, answer the query stated below:
-Documents:
----
-{documents}
----
-
-Query:
----
+insurance_agent_user_prompt = """Considering the provided documents, answer the following user query:
 {query}
----
 """
