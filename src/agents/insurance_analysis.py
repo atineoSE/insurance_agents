@@ -2,52 +2,49 @@ import logging
 from typing import Any, Dict, List
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.chains.qa_with_sources.retrieval import RetrievalQAWithSourcesChain
 from langchain.tools import Tool
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
-from .vector_store import VectorStore
+from src.agents.agent_state import AgentState
+from src.agents.prompts import (
+    insurance_agent_system_prompt,
+    insurance_agent_user_prompt,
+)
+from src.agents.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
 
 
 class InsuranceAnalysisAgent:
     def __init__(self, vector_store: VectorStore):
-        """
-        Initialize the analysis agent with necessary components
-
-        Args:
-            vector_store: Initialized VectorStore instance
-        """
         self.vector_store = vector_store
-        self.llm = ChatOpenAI()
+        self.llm = ChatOpenAI(temperature=0)
 
         # Initialize retrieval chain
-        self.retrieval_chain = self._create_retrieval_chain()
+        # self.retrieval_chain = RetrievalQAWithSourcesChain.from_llm(llm=self.llm)
 
         # Initialize tools
         self.tools = self._create_tools()
 
         # Initialize agent
-        self.agent = self._create_agent()
-
-    def _create_retrieval_chain(self) -> RetrievalQAWithSourcesChain:
-        """
-        TODO: Create retrieval chain for document querying
-
-        Returns:
-            Initialized RetrievalQAWithSourcesChain
-        """
-        # TODO: Implement retrieval chain creation
-        pass
+        prompt_template = ChatPromptTemplate.from_messages(
+            [
+                ("system", insurance_agent_system_prompt),
+                # MessagesPlaceholder("chat_history", optional=True),
+                ("human", insurance_agent_user_prompt),
+                MessagesPlaceholder("agent_scratchpad"),
+            ]
+        )
+        self.agent = create_openai_tools_agent(self.llm, self.tools, prompt_template)
+        self.agent_executor = AgentExecutor(
+            agent=self.agent,
+            tools=self.tools,
+            return_intermediate_steps=True,
+        )
 
     def _create_tools(self) -> List[Tool]:
-        """
-        TODO: Create tools for the agent
-
-        Returns:
-            List of Tool objects
-        """
         tools = [
             Tool(
                 name="search_documents",
@@ -57,16 +54,6 @@ class InsuranceAnalysisAgent:
             # TODO: Add more tools for analysis
         ]
         return tools
-
-    def _create_agent(self) -> AgentExecutor:
-        """
-        TODO: Create the agent executor
-
-        Returns:
-            Initialized AgentExecutor
-        """
-        # TODO: Implement agent creation
-        pass
 
     def analyze_trends(self, query: str) -> str:
         """
@@ -82,19 +69,15 @@ class InsuranceAnalysisAgent:
         # TODO: Implement trend analysis
         return ""
 
-    def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Main agent function to be called by the supervisor
-
-        Args:
-            state: Current state of the system
-
-        Returns:
-            Updated state
-        """
-        # TODO: Implement agent logic
-        # Example:
-        # 1. Extract query from state
-        # 2. Run analysis
-        # 3. Update state with results
+    def run(self, state: AgentState) -> AgentState:
+        logger.info(f"Running insurance agent with input state: {state}")
+        output = self.agent_executor.invoke(
+            {
+                # "chat_history": state["messages"],
+                "documents": "",
+                "query": state["query"],
+            }
+        )
+        logger.info(f"Got output: {output}")
+        state["history"].append("insurance_agent")
         return state

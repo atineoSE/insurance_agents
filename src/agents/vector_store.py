@@ -42,19 +42,10 @@ class VectorStore:
         return len(self.vector_store.get_by_ids([id])) > 0
 
     def similarity_search(self, query: str, k: int = 4) -> List[Document]:
-        """
-        TODO: Perform similarity search
-
-        Args:
-            query: Search query
-            k: Number of results to return
-
-        Returns:
-            List of similar documents
-        """
         logger.info(f"Performing similarity search for: {query}")
-        # TODO: Implement similarity search
-        return []
+        matches = self.vector_store.similarity_search(query, k=k)
+        logger.info(f"Retrieved {len(matches)} matches for query {query}")
+        return matches
 
     def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """

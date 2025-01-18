@@ -10,8 +10,8 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.agents import AgentFinish
 from langchain_core.messages import BaseMessage, HumanMessage
 from langgraph.graph import END, START, Graph, StateGraph
-from typing_extensions import TypedDict
 
+from agents.agent_state import AgentState
 from agents.document_processor import DocumentProcessor
 from agents.insurance_analysis import InsuranceAnalysisAgent
 from agents.vector_store import VectorStore
@@ -20,28 +20,23 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class AgentState(TypedDict):
-    messages: list[BaseMessage]
-    history: list[str]
-
-
 def supervisor_function(state: AgentState) -> AgentState:
     logger.info(f"Running supervisor with input state: {state}")
-    state["history"].append("supervisor_function")
+    state["history"].append("supervisor")
     return state
 
 
 def create_agent_graph(vector_store: VectorStore) -> Graph:
-    # analysis_agent = InsuranceAnalysisAgent(vector_store)
+    analysis_agent = InsuranceAnalysisAgent(vector_store)
 
     graph = StateGraph(AgentState)
 
-    graph.add_node("supervisor_1", supervisor_function)
-    graph.add_node("supervisor_2", supervisor_function)
+    graph.add_node("supervisor", supervisor_function)
+    graph.add_node("insurance_agent", analysis_agent.run)
 
-    graph.add_edge(START, "supervisor_1")
-    graph.add_edge("supervisor_1", "supervisor_2")
-    graph.add_edge("supervisor_2", END)
+    graph.add_edge(START, "supervisor")
+    graph.add_edge("supervisor", "insurance_agent")
+    graph.add_edge("insurance_agent", END)
 
     return graph.compile()
 
@@ -83,12 +78,11 @@ def main():
     graph = create_agent_graph(vector_store)
 
     # Initialize the state
-    initial_state = AgentState(messages=[HumanMessage(content=args.query)], history=[])
+    initial_state = AgentState(messages=[], query=args.query, history=[])
 
     # Run the graph
-    for output in graph.stream(initial_state):
-        if "__end__" not in output:
-            logger.info(f"Intermediate output: {output}")
+    for idx, output in enumerate(graph.stream(initial_state)):
+        logger.info(f"STEP {idx}: {output}")
 
     logger.info("Analysis complete!")
 
