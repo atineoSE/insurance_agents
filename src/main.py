@@ -64,15 +64,15 @@ def main():
 
     # Initialize dependencies
     vector_store = VectorStore()
-    # doc_processor = DocumentProcessor(vector_store)
+    doc_processor = DocumentProcessor(vector_store)
 
-    # # Load documents, if needed
-    # # Note that provided documents have extension XLS but are actually HTML
-    # source_files = [f for f in os.listdir(args.docs_dir) if f.endswith(".xls")]
-    # logger.info(f"Found {len(source_files)} source files at {args.docs_dir}")
-    # for source_file in source_files:
-    #     source_file_path = os.path.join(args.docs_dir, source_file)
-    #     doc_processor.process(source_file_path)
+    # Load documents, if needed
+    # Note that provided documents have extension XLS but are actually HTML
+    source_files = [f for f in os.listdir(args.docs_dir) if f.endswith(".xls")]
+    logger.info(f"Found {len(source_files)} source files at {args.docs_dir}")
+    for source_file in source_files:
+        source_file_path = os.path.join(args.docs_dir, source_file)
+        doc_processor.process(source_file_path)
 
     # Create the agent graph
     graph = create_agent_graph(vector_store)

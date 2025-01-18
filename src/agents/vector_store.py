@@ -7,8 +7,6 @@ from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres import PGVector
 
-# Using PGVector version as recommended here: https://python.langchain.com/docs/integrations/vectorstores/pgvector/
-
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -46,20 +44,3 @@ class VectorStore:
         matches = self.vector_store.similarity_search(query, k=k)
         logger.info(f"Retrieved {len(matches)} matches for query {query}")
         return matches
-
-    def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Main agent function to be called by the supervisor
-
-        Args:
-            state: Current state of the system
-
-        Returns:
-            Updated state
-        """
-        # TODO: Implement agent logic
-        # Example:
-        # 1. Check if there are new documents to store
-        # 2. Add documents to vector store
-        # 3. Update state with storage status
-        return state
