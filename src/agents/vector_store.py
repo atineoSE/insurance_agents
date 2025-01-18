@@ -3,9 +3,11 @@ import os
 from typing import Any, Dict, List
 
 from dotenv import load_dotenv
-from langchain_community.vectorstores import PGVector
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
+from langchain_postgres import PGVector
+
+# Using PGVector version as recommended here: https://python.langchain.com/docs/integrations/vectorstores/pgvector/
 
 load_dotenv()
 
@@ -22,13 +24,13 @@ class VectorStore:
         self.embeddings = OpenAIEmbeddings()
         self.collection_name = "insurance_docs"
 
-    def init_store(self) -> None:
-        """
-        TODO: Initialize PGVector store
-        """
         logger.info("Initializing vector store")
-        # TODO: Implement store initialization
-        pass
+        self.vector_store = PGVector(
+            embeddings=self.embeddings,
+            collection_name=self.collection_name,
+            connection=self.connection_string,
+            use_jsonb=True,
+        )
 
     def add_documents(self, documents: List[Document]) -> None:
         """
