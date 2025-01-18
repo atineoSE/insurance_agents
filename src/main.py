@@ -71,6 +71,7 @@ def main():
 
     # Create the agent graph
     graph = create_agent_graph(vector_store)
+    graph.get_graph().draw_mermaid_png(output_file_path="graph_chart.png")
 
     # Initialize the state
     initial_state = AgentState(query=args.query, output=None, history=[])
