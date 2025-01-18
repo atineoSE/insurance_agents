@@ -3,5 +3,6 @@ from typing_extensions import TypedDict
 
 class AgentState(TypedDict):
     query: str
-    output: str | None
+    market_analysis: str | None
+    earnings_call_report: str | None
     history: list[str]

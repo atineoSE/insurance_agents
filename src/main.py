@@ -8,30 +8,27 @@ from langgraph.graph import END, START, Graph, StateGraph
 
 from agents.agent_state import AgentState
 from agents.document_processor import DocumentProcessor
-from agents.insurance_analysis import InsuranceAnalysisAgent
+from agents.earnings_call_agent import EarningsCallAgent
+from agents.insurance_analysis_agent import InsuranceAnalysisAgent
+from agents.simple_store import SimpleStore
 from agents.vector_store import VectorStore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def supervisor_function(state: AgentState) -> AgentState:
-    logger.info(f"Running supervisor with input state: {state}")
-    state["history"].append("supervisor")
-    return state
-
-
-def create_agent_graph(vector_store: VectorStore) -> Graph:
+def create_agent_graph(vector_store: VectorStore, simple_store: SimpleStore) -> Graph:
     analysis_agent = InsuranceAnalysisAgent(vector_store)
+    earnings_call_agent = EarningsCallAgent(simple_store)
 
     graph = StateGraph(AgentState)
 
-    graph.add_node("supervisor", supervisor_function)
     graph.add_node("insurance_agent", analysis_agent.run)
+    graph.add_node("earnings_call_agent", earnings_call_agent.run)
 
-    graph.add_edge(START, "supervisor")
-    graph.add_edge("supervisor", "insurance_agent")
-    graph.add_edge("insurance_agent", END)
+    graph.add_edge(START, "insurance_agent")
+    graph.add_edge("insurance_agent", "earnings_call_agent")
+    graph.add_edge("earnings_call_agent", END)
 
     return graph.compile()
 
@@ -60,6 +57,7 @@ def main():
     # Initialize dependencies
     vector_store = VectorStore()
     doc_processor = DocumentProcessor(vector_store)
+    simple_store = SimpleStore()
 
     # Load documents, if needed
     # Note that provided documents have extension XLS but are actually HTML
@@ -70,11 +68,13 @@ def main():
         doc_processor.process(source_file_path)
 
     # Create the agent graph
-    graph = create_agent_graph(vector_store)
+    graph = create_agent_graph(vector_store, simple_store)
     graph.get_graph().draw_mermaid_png(output_file_path="graph_chart.png")
 
     # Initialize the state
-    initial_state = AgentState(query=args.query, output=None, history=[])
+    initial_state = AgentState(
+        query=args.query, market_analysis=None, earnings_call_report=None, history=[]
+    )
 
     # Run the graph
     for idx, state in enumerate(graph.stream(initial_state)):
@@ -83,7 +83,7 @@ def main():
     logger.info("Analysis complete!")
 
     print(f"\n\nQuery: {args.query}")
-    print(f"\n\nAnswer: {state["insurance_agent"]["output"]}")
+    print(f"\n\nAnswer: {state["earnings_call_agent"]["earnings_call_report"]}")
 
 
 if __name__ == "__main__":

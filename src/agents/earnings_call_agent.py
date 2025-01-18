@@ -7,18 +7,18 @@ from langchain_openai import ChatOpenAI
 
 from src.agents.agent_state import AgentState
 from src.agents.prompts import (
-    insurance_agent_system_prompt,
-    insurance_agent_user_prompt,
+    earnings_call_agent_system_prompt,
+    earnings_call_agent_user_prompt,
 )
-from src.agents.vector_store import VectorStore
+from src.agents.simple_store import SimpleStore
 
 logger = logging.getLogger(__name__)
 
 
-class InsuranceAnalysisAgent:
-    def __init__(self, vector_store: VectorStore):
-        self.vector_store = vector_store
-        self.llm = ChatOpenAI(temperature=0)
+class EarningsCallAgent:
+    def __init__(self, earning_calls_store: SimpleStore):
+        self.earnings_call_store = earning_calls_store
+        self.llm = ChatOpenAI(temperature=0.8)
 
         # Initialize tools
         self.tools = self._create_tools()
@@ -26,8 +26,8 @@ class InsuranceAnalysisAgent:
         # Initialize agent
         prompt_template = ChatPromptTemplate.from_messages(
             [
-                ("system", insurance_agent_system_prompt),
-                ("human", insurance_agent_user_prompt),
+                ("system", earnings_call_agent_system_prompt),
+                ("human", earnings_call_agent_user_prompt),
                 MessagesPlaceholder("agent_scratchpad"),
             ]
         )
@@ -41,17 +41,19 @@ class InsuranceAnalysisAgent:
     def _create_tools(self) -> list[Tool]:
         tools = [
             Tool(
-                name="search_documents",
-                func=self.vector_store.similarity_search,
-                description="Search through insurance documents",
+                name="fetch_previous_earnings_calls",
+                func=self.earnings_call_store.get_records,
+                description="Find relevant earnings call data from previous sessions",
             ),
         ]
         return tools
 
     def run(self, state: AgentState) -> AgentState:
-        logger.info(f"Running insurance agent with input state: {state}")
-        output = self.agent_executor.invoke({"query": state["query"]})
+        logger.info(f"Running earnings call agent with input state: {state}")
+        output = self.agent_executor.invoke(
+            {"market_analysis": state["market_analysis"]}
+        )
         logger.debug(f"Got output: {output}")
         state["history"].append("insurance_agent")
-        state["market_analysis"] = output["output"]
+        state["earnings_call_report"] = output["output"]
         return state
