@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "agent-rag"
+name = "insurance-agents"
 version = "0.1.0"
 description = ""
-authors = ["Elon Salfati <elon@salfati.group>"]
+authors = ["Elon Salfati <elon@salfati.group>", "Adrian Tineo <adrian@adriantineo.com>"]
 readme = "README.md"
 packages = [
   { include = "src" }
