@@ -16,7 +16,20 @@ logger = logging.getLogger(__name__)
 
 
 class InsuranceAnalysisAgent:
+    """
+    A class representing an insurance analysis agent.
+
+    This agent is responsible for generating a market analysis report based on the input query.
+    It uses a language model to generate the report and has access to a vector store to search through insurance documents.
+    """
+
     def __init__(self, vector_store: VectorStore):
+        """
+        Initializes an InsuranceAnalysisAgent instance.
+
+        Args:
+            vector_store (VectorStore): The vector store where insurance documents are stored.
+        """
         self.vector_store = vector_store
         self.llm = ChatOpenAI(temperature=0)
 
@@ -39,6 +52,14 @@ class InsuranceAnalysisAgent:
         )
 
     def _create_tools(self) -> list[Tool]:
+        """
+        Creates a list of tools for the agent.
+
+        Currently, the only tool is "search_documents", which searches through insurance documents in the vector store.
+
+        Returns:
+            list[Tool]: The list of tools.
+        """
         tools = [
             Tool(
                 name="search_documents",
@@ -49,6 +70,18 @@ class InsuranceAnalysisAgent:
         return tools
 
     def run(self, state: AgentState) -> AgentState:
+        """
+        Runs the insurance analysis agent with the given input state.
+
+        The agent generates a market analysis report based on the input query in the state.
+        The report is then added to the output state, along with the current agent's name in the history.
+
+        Args:
+            state (AgentState): The input state.
+
+        Returns:
+            AgentState: The output state with the market analysis report.
+        """
         logger.info(f"Running insurance agent with input state: {state}")
         output = self.agent_executor.invoke({"query": state["query"]})
         logger.debug(f"Got output: {output}")

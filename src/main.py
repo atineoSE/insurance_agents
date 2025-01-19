@@ -19,6 +19,16 @@ logger = logging.getLogger(__name__)
 
 
 def create_agent_graph(vector_store: VectorStore, simple_store: SimpleStore) -> Graph:
+    """
+    Creates a graph of agents for insurance data analysis.
+
+    Args:
+        vector_store (VectorStore): The vector store used by the agents.
+        simple_store (SimpleStore): The simple store used by the agents.
+
+    Returns:
+        Graph: The compiled graph of agents.
+    """
     analysis_agent = InsuranceAnalysisAgent(vector_store)
     risk_assessment_agent = RiskAssessmenttAgent()
     earnings_call_agent = EarningsCallAgent(simple_store)
@@ -39,6 +49,12 @@ def create_agent_graph(vector_store: VectorStore, simple_store: SimpleStore) -> 
 
 
 def main():
+    """
+    The main entry point of the insurance data analysis pipeline.
+
+    This function initializes the dependencies, loads the source documents, creates the agent graph,
+    and runs the graph to produce the analysis results.
+    """
     parser = argparse.ArgumentParser(description="Insurance Data Analysis Pipeline")
     parser.add_argument(
         "--docs-dir",
@@ -88,7 +104,7 @@ def main():
     logger.info("Analysis complete!")
 
     print(f"\n\nQuery: {args.query}")
-    print(f"\n\nAnswer: {state["earnings_call_agent"]["earnings_call_report"]}")
+    print(f"\n\nAnswer: {state['earnings_call_agent']['earnings_call_report']}")
 
 
 if __name__ == "__main__":
