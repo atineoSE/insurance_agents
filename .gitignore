@@ -38,8 +38,6 @@ ENV/
 *.sublime-project
 
 # Project specific
-*.xlsx
-*.xls
 *.csv
 *.db
 *.sqlite3
@@ -47,7 +45,6 @@ ENV/
 .vector_store/
 
 # Logs
-*.log
 logs/
 log/
 
